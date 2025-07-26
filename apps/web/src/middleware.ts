@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getSessionTokenFromRequest } from "./lib/session.server";
+
+import Auth from "@/services/auth";
 
 export async function middleware(request: NextRequest) {
-  const sessionToken = getSessionTokenFromRequest(request);
+  const { isValid } = await Auth.verifySession();
 
-  if (!sessionToken) {
+  if (!isValid) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -13,5 +14,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/account/:path*"], // protect these paths
+  matcher: ["/account/:path*", "/images/:path*"], // protect these paths
 };

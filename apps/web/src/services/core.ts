@@ -19,6 +19,23 @@ class MyconidCoreService {
   Media: MediaService = new MediaService();
   constructor() {}
 
+  async getImageByID(id: string): Promise<Image | null> {
+    const doc = await firestore.collection("images").doc(id).get();
+
+    if (!doc.exists) {
+      return null;
+    }
+
+    const data = doc.data();
+
+    return {
+      ...data,
+      id: doc.id,
+      createdAt: data?.createdAt.toDate(),
+      deletedAt: data?.deletedAt?.toDate(),
+    } as Image;
+  }
+
   async getImagesByUserID(userId: string): Promise<Image[]> {
     const imagesRef = firestore.collection("images");
     const querySnapshot = await imagesRef.where("userId", "==", userId).get();

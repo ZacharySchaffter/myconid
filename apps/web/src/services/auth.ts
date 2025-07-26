@@ -1,5 +1,7 @@
 "use server-only";
 
+import { getSessionToken } from "@/lib/session.server";
+import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 interface TokenResponse {
@@ -20,10 +22,17 @@ class Auth {
     throw Error("not implemented");
   }
 
-  async verifySession(
-    request: NextRequest
-  ): Promise<{ userId: string; isValid: boolean }> {
+  async verifySession(): Promise<
+    { userId: string; isValid: true } | { userId?: null; isValid: false }
+  > {
     // TODO: verify token via auth service
+    const token = await getSessionToken();
+
+    if (!token) {
+      return {
+        isValid: false,
+      };
+    }
 
     return {
       userId: "fake-id-123",

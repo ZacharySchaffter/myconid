@@ -4,6 +4,7 @@ import { Accept, useDropzone, FileRejection, ErrorCode } from "react-dropzone";
 import { Button } from "./ui/button";
 import Modal from "./Modal";
 import Overlay from "./Overlay";
+import { useRouter } from "next/navigation";
 
 const FILE_MAX_SIZE_MB = 4;
 
@@ -44,6 +45,7 @@ const MediaUpload: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const router = useRouter();
 
   const uploadFile = useCallback(async (file: File) => {
     const formData = new FormData();
@@ -74,12 +76,13 @@ const MediaUpload: React.FC = () => {
       setIsUploading(true);
 
       uploadFile(files[0])
-        .then((res) => {
+        .then(async (res) => {
           if (!res.ok) {
             throw new Error("upload received error response");
           }
           console.log("upload successful", res);
-          alert("upload succeeded! check console");
+          const json = await res.json();
+          router.push(`/images/${json.data.id}`);
         })
         .catch((err) => {
           console.error("error uploading file: ", err);
@@ -93,7 +96,7 @@ const MediaUpload: React.FC = () => {
         setIsUploading(false);
       }, 2000);
     },
-    []
+    [router, handleFileRejection, uploadFile]
   );
 
   const {
