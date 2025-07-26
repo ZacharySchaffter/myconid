@@ -40,6 +40,7 @@ const acceptedFileTypesStrList = Object.values(ACCEPTED_FILE_TYPE_MAP || [])
 
 const MediaUpload: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
   const [isFileRejected, setIsFileRejected] = useState(false);
@@ -59,8 +60,8 @@ const MediaUpload: React.FC = () => {
         return;
       }
 
+      setFile(files[0]);
       setIsUploading(true);
-      // const file = files[0];
 
       setTimeout(() => {
         setIsUploading(false);
@@ -82,82 +83,71 @@ const MediaUpload: React.FC = () => {
     accept: ACCEPTED_FILE_TYPE_MAP,
     multiple: false,
     useFsAccessApi: false,
-    onDragEnter: () => setIsDragging(true),
+    onDragEnter: () => {
+      setIsDragging(true);
+      debugger;
+    },
     onDragLeave: () => setIsDragging(false),
   });
 
   return (
-    <>
-      {/* Visible Uploader Component */}
-      <div {...getRootProps()}>
-        <input {...getInputProps()} />
-        <div
-          className={clsx(
-            "relative border-2 border-dashed border-gray-300 transition-colors rounded-md min-h-32 w-full py-8 px-3",
-            { "bg-gray-500/[.06]": isDragAccept },
-            {
-              "bg-rose-400/[.06] border-red-500":
-                (isDragging && isDragReject) || isFileRejected,
-            }
-          )}
-        >
-          {/* Drop area input - fades when the items are invalid */}
-          <div className={clsx("flex flex-col items-center justify-center")}>
-            <div className="mb-2 text-sm text-center text-gray-600 flex flex-col items-center gap-3">
-              <div>To analyze an image, simply...</div>
-              <div>
-                <Button className="cursor-pointer" onClick={openFileInput}>
-                  Upload an image
-                </Button>
-              </div>
-              <div> or drag and drop</div>
+    <div {...getRootProps()}>
+      <input {...getInputProps()} />
+      <div
+        className={clsx(
+          "relative border-2 border-dashed border-gray-300 transition-colors rounded-md min-h-32 w-full py-8 px-3",
+          { "bg-gray-500/[.06]": isDragAccept },
+          {
+            "bg-rose-400/[.06] border-red-500":
+              (isDragging && isDragReject) || isFileRejected,
+          }
+        )}
+      >
+        {/* Drop area input - fades when the items are invalid */}
+        <div className={clsx("flex flex-col items-center justify-center")}>
+          <div className="mb-2 text-sm text-center text-gray-600 flex flex-col items-center gap-3">
+            <div>To analyze an image, simply...</div>
+            <div>
+              <Button className="cursor-pointer" onClick={openFileInput}>
+                Upload an image
+              </Button>
             </div>
+            <div> or drag and drop</div>
+          </div>
 
-            <div className="text-center text-xs text-gray-400">
-              {acceptedFileTypesStrList} up to {FILE_MAX_SIZE_MB} MB
-            </div>
+          <div className="text-center text-xs text-gray-400">
+            {acceptedFileTypesStrList} up to {FILE_MAX_SIZE_MB} MB
           </div>
         </div>
+      </div>
+      {/* Overlays */}
+      <div
+        {...getRootProps({ className: "fixed inset-0 pointer-events-none" })}
+      >
+        <input {...getInputProps()} />
         {/* Dragged file selection overlay */}
-
-        {isDragging && !isUploading && (
-          <div
-            className={clsx(
-              "text-center fixed top-0 left-0 right-0 bottom-0  z-[9999] pointer-events-auto",
-              "flex items-center justify-center",
-              "bg-slate-500/80 text-white"
+        {isDragging && (
+          <Overlay>
+            {isDragReject ? (
+              <>Warning: Invalid file selected</>
+            ) : (
+              <>Drop your image anywhere to upload</>
             )}
-          >
-            <div className="text-lg font-bold">
-              {isDragReject ? (
-                <>Warning: Invalid file selected</>
-              ) : (
-                <>Drop your image anywhere to upload</>
-              )}
-            </div>
-          </div>
-          // <Overlay {...getRootProps()}>
-          //   {isDragReject ? (
-          //     <>Warning: Invalid file selected</>
-          //   ) : (
-          //     <>Drop your image anywhere to upload</>
-          //   )}
-          // </Overlay>
+          </Overlay>
         )}
 
         {/* File upload overlay */}
-        {/* {isUploading && (
-        <Overlay>
-          <p>
-            Now processing
-            <br />
-            [filename]
-          </p>
+        {isUploading && (
+          <Overlay>
+            <p>
+              Now processing
+              <br />
+              {file?.name || "your file"}
+            </p>
 
-          <p>This should only take a few seconds</p>
-          <p>[loader]</p>
-        </Overlay>
-      )} */}
+            <p>This should only take a few seconds...</p>
+          </Overlay>
+        )}
       </div>
 
       {/* Rejection Warning Modal */}
@@ -168,7 +158,7 @@ const MediaUpload: React.FC = () => {
       >
         {fileError || "Something unexpected went wrong, please try again."}
       </Modal>
-    </>
+    </div>
   );
 };
 
