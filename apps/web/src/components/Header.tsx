@@ -19,7 +19,11 @@ const Header: React.FC = () => {
       </div>
 
       <div className="justify-self-end">
-        <button type="button" onClick={handleLogout}>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="cursor-pointer text-sm"
+        >
           Logout
         </button>
       </div>

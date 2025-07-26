@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { AuthContextProvider } from "@/context/auth";
-import { cookies } from "next/headers";
+import { getSessionToken } from "@/services/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,8 +25,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const session = cookieStore.get("session")?.value;
+  const session = await getSessionToken();
 
   return (
     <html lang="en">

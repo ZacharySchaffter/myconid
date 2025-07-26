@@ -1,8 +1,7 @@
-import { setSessionTokenForResponse } from "@/services/auth";
 import { NextResponse } from "next/server";
 
-// TODO: integrate with authentication service
-
+// TODO: Move to microservice
+// Create upload
 export async function POST(req: Request) {
   const { username, password } = await req.json();
 
@@ -14,7 +13,13 @@ export async function POST(req: Request) {
 
     const token = "fake-jwt-token";
 
-    setSessionTokenForResponse(response, token);
+    response.cookies.set("session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24, // 1 day
+    });
 
     return response;
   }
