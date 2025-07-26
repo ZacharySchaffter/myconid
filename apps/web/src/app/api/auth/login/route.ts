@@ -1,4 +1,4 @@
-import { setSessionTokenForResponse } from "@/services/auth";
+import { setSessionTokenForResponse } from "@/lib/session";
 import { NextResponse } from "next/server";
 
 // TODO: integrate with authentication service

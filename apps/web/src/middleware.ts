@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getSessionTokenFromRequest } from "./services/auth";
+import { getSessionTokenFromRequest } from "./lib/session";
 
 export async function middleware(request: NextRequest) {
-  const sessionToken = await getSessionTokenFromRequest(request);
+  const sessionToken = getSessionTokenFromRequest(request);
 
   if (!sessionToken) {
     return NextResponse.redirect(new URL("/login", request.url));

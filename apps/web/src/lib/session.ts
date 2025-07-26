@@ -1,4 +1,4 @@
-"use server";
+"use server-only";
 
 import { cookies } from "next/headers";
 import type { NextRequest, NextResponse } from "next/server";
@@ -12,17 +12,17 @@ export async function getSessionToken(): Promise<SessionToken | null> {
   return cookieStore.get(SESSION_COOKIE_KEY)?.value ?? null;
 }
 
-export async function getSessionTokenFromRequest(
+export function getSessionTokenFromRequest(
   request: NextRequest
-): Promise<SessionToken | null> {
+): SessionToken | null {
   return request.cookies.get(SESSION_COOKIE_KEY)?.value ?? null;
 }
 
-export async function setSessionTokenForResponse(
+export function setSessionTokenForResponse(
   response: NextResponse,
   token: SessionToken,
   maxAgeSeconds = 60 * 60 * 24
-): Promise<void> {
+): void {
   response.cookies.set(SESSION_COOKIE_KEY, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -32,9 +32,7 @@ export async function setSessionTokenForResponse(
   });
 }
 
-export async function clearSessionCookieForResponse(
-  response: NextResponse
-): Promise<void> {
+export function clearSessionCookieForResponse(response: NextResponse): void {
   response.cookies.set(SESSION_COOKIE_KEY, "", {
     httpOnly: true,
     path: "/",
