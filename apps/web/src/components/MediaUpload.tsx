@@ -42,19 +42,29 @@ const MediaUpload: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [fileError, setFileError] = useState<string | null>(null);
-  const [isFileRejected, setIsFileRejected] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+
+  const uploadFile = useCallback(async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return fetch("/api/images", {
+      method: "POST",
+      body: formData,
+    });
+  }, []);
 
   const handleFileRejection = useCallback((rejection: FileRejection) => {
     console.error("file upload rejected: ", rejection);
-    setFileError(formatRejectionMessage(rejection));
-    setIsFileRejected(true);
+    setError(formatRejectionMessage(rejection));
+    setIsErrorModalOpen(true);
   }, []);
 
   const handleFileSelect = useCallback(
     (files: File[], rejections: FileRejection[]) => {
       setIsDragging(false);
-      setFileError(null);
+      setError(null);
       if (rejections?.length) {
         handleFileRejection(rejections[0]);
         return;
@@ -62,6 +72,19 @@ const MediaUpload: React.FC = () => {
 
       setFile(files[0]);
       setIsUploading(true);
+
+      uploadFile(files[0])
+        .then((res) => {
+          console.log("upload successful", res);
+          alert("upload succeeded! check console");
+        })
+        .catch((err) => {
+          console.error("error uploading file: ", err);
+          setError(
+            "Something went wrong uploading your file.  Please try again."
+          );
+          setIsErrorModalOpen(true);
+        });
 
       setTimeout(() => {
         setIsUploading(false);
@@ -98,7 +121,7 @@ const MediaUpload: React.FC = () => {
           { "bg-gray-500/[.06]": isDragAccept },
           {
             "bg-rose-400/[.06] border-red-500":
-              (isDragging && isDragReject) || isFileRejected,
+              (isDragging && isDragReject) || isErrorModalOpen,
           }
         )}
       >
@@ -151,11 +174,11 @@ const MediaUpload: React.FC = () => {
 
       {/* Rejection Warning Modal */}
       <Modal
-        open={isFileRejected}
-        onOpenChange={setIsFileRejected}
+        open={isErrorModalOpen}
+        onOpenChange={setIsErrorModalOpen}
         title={"Invalid file"}
       >
-        {fileError || "Something unexpected went wrong, please try again."}
+        {error || "Something unexpected went wrong, please try again."}
       </Modal>
     </div>
   );
