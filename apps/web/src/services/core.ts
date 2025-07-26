@@ -1,14 +1,17 @@
 "use server-only";
-
+import uuid from "uuid";
 import { firestore } from "../lib/firestore.server";
-
 import { MediaService } from "./media";
 
-interface Image {
-  user_id: string;
-  media_id: string;
-  created_at: FirebaseFirestore.Timestamp;
-  deleted_at: FirebaseFirestore.Timestamp | null;
+interface ImageRecord {
+  userId: string;
+  mediaPath: string;
+  createdAt: Date;
+  deletedAt?: Date | null;
+}
+
+interface Image extends ImageRecord {
+  id: string;
 }
 
 class MyconidCoreService {
@@ -31,9 +34,9 @@ class MyconidCoreService {
     fileName: string,
     mimeType: string,
     buffer: Buffer
-  ): Promise<void> {
+  ): Promise<Image> {
     // add media to file storage
-    const mediaUrl = await this.Media.createMedia(
+    const mediaPath = await this.Media.createMedia(
       userId,
       fileName,
       mimeType,
@@ -41,6 +44,19 @@ class MyconidCoreService {
     );
 
     // create record in firestore
+    const docId = uuid.v7();
+    const docRef = firestore.collection("images").doc(docId);
+
+    const imageData: ImageRecord = {
+      userId,
+      mediaPath,
+      createdAt: new Date(),
+      deletedAt: null,
+    };
+
+    await docRef.set(imageData);
+
+    return { id: docRef.id, ...imageData };
   }
 }
 

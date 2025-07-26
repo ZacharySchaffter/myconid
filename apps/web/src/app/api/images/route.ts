@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   const file = formData.get("file") as File | null;
 
   // validate session token
-  const { userId, isValid } = await Auth.verifySession();
+  const { userId, isValid } = await Auth.verifySession(request);
 
   if (!isValid) {
     return NextResponse.json({ error: "not authenticated" }, { status: 401 });
@@ -38,11 +38,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // You can access the file as a Blob/File here:
-  // To convert to Buffer for backend:
   const buffer = Buffer.from(await file.arrayBuffer());
 
   const image = await Myconid.createImage(userId, file.name, file.type, buffer);
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, data: image });
 }

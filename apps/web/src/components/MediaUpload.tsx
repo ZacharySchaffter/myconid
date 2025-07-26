@@ -85,7 +85,6 @@ const MediaUpload: React.FC = () => {
     useFsAccessApi: false,
     onDragEnter: () => {
       setIsDragging(true);
-      debugger;
     },
     onDragLeave: () => setIsDragging(false),
   });
