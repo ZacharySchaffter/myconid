@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getSessionTokenFromRequest } from "./lib/session";
+import { getSessionTokenFromRequest } from "./lib/session.server";
 
 export async function middleware(request: NextRequest) {
   const sessionToken = getSessionTokenFromRequest(request);

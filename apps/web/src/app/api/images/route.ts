@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "not authenticated" }, { status: 401 });
   }
 
+  console.log("getting images for ", userId);
+
   const images = await Myconid.getImagesByUserID(userId).catch((err) => {
     console.error(`error getting images for user id "${userId}"`, err);
     return NextResponse.json(

@@ -75,6 +75,9 @@ const MediaUpload: React.FC = () => {
 
       uploadFile(files[0])
         .then((res) => {
+          if (!res.ok) {
+            throw new Error("upload received error response");
+          }
           console.log("upload successful", res);
           alert("upload succeeded! check console");
         })

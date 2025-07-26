@@ -3,9 +3,16 @@
 import Heading from "@/components/Heading";
 import MediaUpload from "@/components/MediaUpload";
 import { useAuthContext } from "@/context/auth";
+import { useEffect } from "react";
 
 const AccountPage: React.FC = () => {
   const { username } = useAuthContext();
+
+  useEffect(() => {
+    fetch("/api/images").then((data) => {
+      console.log(data);
+    });
+  }, []);
   return (
     <div className="w-full max-w-2xl flex-grow">
       {/* TODO: add username from auth ctx */}

@@ -1,5 +1,6 @@
 "use server-only";
-import uuid from "uuid";
+
+import { v7 as uuidv7 } from "uuid";
 import { firestore } from "../lib/firestore.server";
 import { MediaService } from "./media";
 
@@ -20,11 +21,17 @@ class MyconidCoreService {
 
   async getImagesByUserID(userId: string): Promise<Image[]> {
     const imagesRef = firestore.collection("images");
-    const querySnapshot = await imagesRef.where("user_id", "==", userId).get();
+    const querySnapshot = await imagesRef.where("userId", "==", userId).get();
 
-    const images: Image[] = querySnapshot.docs.map(
-      (doc) => doc.data() as Image
-    );
+    const images: Image[] = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        ...data,
+        id: doc.id,
+        createdAt: data.createdAt.toDate(),
+        deletedAt: data.deletedAt?.toDate(),
+      } as Image;
+    });
 
     return images;
   }
@@ -44,7 +51,7 @@ class MyconidCoreService {
     );
 
     // create record in firestore
-    const docId = uuid.v7();
+    const docId = uuidv7();
     const docRef = firestore.collection("images").doc(docId);
 
     const imageData: ImageRecord = {

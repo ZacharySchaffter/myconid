@@ -1,4 +1,4 @@
-import { clearSessionCookieForResponse } from "@/lib/session";
+import { clearSessionCookieForResponse } from "@/lib/session.server";
 import { NextResponse } from "next/server";
 
 export async function POST() {
