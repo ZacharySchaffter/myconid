@@ -1,10 +1,7 @@
 "use client";
 
-import FileDropInput from "@/components/FileInput";
 import Heading from "@/components/Heading";
-import LoginForm from "@/components/LoginForm";
 import MediaUpload from "@/components/MediaUpload";
-import StyledLink from "@/components/StyledLink";
 import { useAuthContext } from "@/context/auth";
 
 const AccountPage: React.FC = () => {
