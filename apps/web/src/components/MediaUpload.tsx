@@ -90,11 +90,10 @@ const MediaUpload: React.FC = () => {
             "Something went wrong uploading your file.  Please try again."
           );
           setIsErrorModalOpen(true);
+        })
+        .finally(() => {
+          setIsUploading(false);
         });
-
-      setTimeout(() => {
-        setIsUploading(false);
-      }, 2000);
     },
     [router, handleFileRejection, uploadFile]
   );
