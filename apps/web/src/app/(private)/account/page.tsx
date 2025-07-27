@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import Heading from "@/components/Heading";
 import MediaUpload from "@/components/MediaUpload";
 import { useAuthContext } from "@/context/auth";
