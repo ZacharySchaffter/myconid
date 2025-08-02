@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuthContext } from "@/context/auth";
 
 type Props = {
   className?: string;
@@ -12,6 +13,7 @@ type Props = {
 
 const LoginForm: React.FC<Props> = ({ className }) => {
   const router = useRouter();
+  const { login } = useAuthContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -22,22 +24,12 @@ const LoginForm: React.FC<Props> = ({ className }) => {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (!res.ok) {
-        setError("Login failed");
-        setLoading(false);
-        return;
-      }
+      const res = await login({ username, password });
 
       router.push("/account");
     } catch (err) {
       console.error(err);
-      setError("Login failed");
+      setError("Invalid username or password.  Please try again.");
     } finally {
       setLoading(false);
     }
@@ -76,7 +68,7 @@ const LoginForm: React.FC<Props> = ({ className }) => {
           />
         </div>
 
-        {error && <p className="text-red-500 my-3">{error}</p>}
+        {error && <p className="text-red-500 my-3 text-center">{error}</p>}
 
         <Button
           type="submit"

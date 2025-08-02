@@ -3,16 +3,23 @@
 import { useRouter } from "next/navigation";
 import React, { PropsWithChildren, useContext, useMemo, useState } from "react";
 
+type UserCredentials = {
+  username: string;
+  password: string;
+};
+
 type AuthContextData = {
   isLoggedIn: boolean;
   username: string | null;
   logout: () => Promise<void>;
+  login: (credentials: UserCredentials) => Promise<void>;
 };
 
 const defaultData: AuthContextData = {
   isLoggedIn: false,
   username: null,
   logout: () => Promise.reject("not initialized"),
+  login: () => Promise.reject("not initialized"),
 };
 
 const AuthContext = React.createContext(defaultData);
@@ -32,6 +39,18 @@ export const AuthContextProvider: React.FC<PropsWithChildren<Props>> = ({
     return {
       isLoggedIn: isAuthed,
       username: null,
+      login: async (credentials: UserCredentials) => {
+        return fetch("/api/auth/login", {
+          method: "POST",
+          body: JSON.stringify(credentials),
+        }).then((res) => {
+          if (!res.ok) {
+            throw new Error(`login error: ${res.status} - ${res.statusText}`);
+          }
+          setIsAuthed(true);
+          router.push("/account");
+        });
+      },
       logout: async () => {
         return fetch("/api/auth/logout", { method: "POST" })
           .then(() => {

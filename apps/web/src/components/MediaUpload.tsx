@@ -90,11 +90,10 @@ const MediaUpload: React.FC = () => {
             "Something went wrong uploading your file.  Please try again."
           );
           setIsErrorModalOpen(true);
+        })
+        .finally(() => {
+          setIsUploading(false);
         });
-
-      setTimeout(() => {
-        setIsUploading(false);
-      }, 2000);
     },
     [router, handleFileRejection, uploadFile]
   );
@@ -149,10 +148,7 @@ const MediaUpload: React.FC = () => {
         </div>
       </div>
       {/* Overlays */}
-      <div
-        {...getRootProps({ className: "fixed inset-0 pointer-events-none" })}
-      >
-        <input {...getInputProps()} />
+      <div>
         {/* Dragged file selection overlay */}
         {isDragging && (
           <Overlay>
@@ -163,7 +159,6 @@ const MediaUpload: React.FC = () => {
             )}
           </Overlay>
         )}
-
         {/* File upload overlay */}
         {isUploading && (
           <Overlay>

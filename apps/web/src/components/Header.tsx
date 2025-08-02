@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback } from "react";
 
 const Header: React.FC = () => {
-  const { logout } = useAuthContext();
+  const { isLoggedIn, logout } = useAuthContext();
   const handleLogout = useCallback(() => {
     logout();
   }, [logout]);
@@ -19,13 +19,15 @@ const Header: React.FC = () => {
       </div>
 
       <div className="justify-self-end">
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="cursor-pointer text-sm"
-        >
-          Logout
-        </button>
+        {isLoggedIn && (
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="cursor-pointer text-sm"
+          >
+            Logout
+          </button>
+        )}
       </div>
     </header>
   );
