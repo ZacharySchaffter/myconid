@@ -74,10 +74,10 @@ app.get("/images", async (req: Request, res: Response) => {
       `error: failed to retrieve images (user id: ${userId}, exclude: ${exclude}):`,
       err
     );
-    return res.status(500).send({ error: "error retrieving images" });
+    return res.status(500).json({ error: "error retrieving images" });
   });
 
-  return res.send({ data: images, success: true });
+  return res.json({ data: images, success: true });
 });
 
 /**
@@ -104,10 +104,10 @@ app.get("/images/:id", async (req: Request, res: Response) => {
   }
 
   if (!image) {
-    res.status(404).send({ error: "image not found" });
+    res.status(404).json({ error: "image not found" });
   }
 
-  res.send({ data: image, success: true });
+  res.json({ data: image, success: true });
 });
 
 /**
@@ -125,19 +125,12 @@ app.post(
       return res.status(401).json({ error: "not authenticated" });
     }
 
-    if (!req.file) {
+    const imageFile = req.file;
+    if (!imageFile) {
       return res.status(400).json({ error: "missing file" });
     }
 
-    const file = req.file;
-    const buffer = file.buffer;
-
-    const image = await Myconid.createImage(
-      userId,
-      file.originalname,
-      file.mimetype,
-      buffer
-    );
+    const image = await Myconid.createImage(userId, imageFile);
 
     res.json({ success: true, data: image });
   }

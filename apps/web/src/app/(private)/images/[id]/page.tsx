@@ -44,8 +44,8 @@ const ImageDetailPage = async ({ params }: { params: Promise<PageParams> }) => {
       {/* Image */}
       <div className="relative border border-black aspect-square">
         <img
-          src={`/assets/images/${id}`}
-          alt={`image id: ${image.id}`}
+          src={`${process.env.NEXT_PUBLIC_MEDIA_SERVICE_BASE_URL}/${id}/url`}
+          alt={`image id: ${id}`}
           className="block absolute left-0 top-0 right-0 bottom-0 w-full h-full object-cover object-center"
         />
       </div>

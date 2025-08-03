@@ -19,7 +19,7 @@ class MyconidCoreService {
 
   constructor() {
     if (!this.baseUrl) {
-      console.error("myconid service base url not set and is required!");
+      console.error("core api service base url not set and is required!");
     }
   }
 

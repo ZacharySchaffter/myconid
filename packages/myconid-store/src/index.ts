@@ -1,26 +1,31 @@
-"use server-only";
-
+import admin from "firebase-admin";
 import { v7 as uuidv7 } from "uuid";
-import { firestore } from "../lib/firestore";
-import { MediaService } from "./media";
+import { Image, ImageRecord } from "./types.js";
 
-interface ImageRecord {
-  userId: string;
-  mediaPath: string;
-  createdAt: Date;
-  deletedAt?: Date | null;
-}
+export class Store {
+  private firestore: admin.firestore.Firestore;
 
-interface Image extends ImageRecord {
-  id: string;
-}
+  constructor(firebaseCredentials: string) {
+    if (!firebaseCredentials) {
+      console.error("ERROR: firebase credentials are required.");
+      process.exit(1);
+    }
 
-class MyconidCoreService {
-  Media: MediaService = new MediaService();
-  constructor() {}
+    if (!admin.apps.length) {
+      const serviceAccount = JSON.parse(
+        Buffer.from(firebaseCredentials, "base64").toString("utf-8")
+      );
+
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+    }
+
+    this.firestore = admin.firestore();
+  }
 
   async getImage(id: string): Promise<Image | null> {
-    const doc = await firestore.collection("images").doc(id).get();
+    const doc = await this.firestore.collection("images").doc(id).get();
 
     if (!doc.exists) {
       return null;
@@ -37,7 +42,7 @@ class MyconidCoreService {
   }
 
   async listImages(userId?: string, exclude?: string): Promise<Image[]> {
-    const imagesRef = firestore.collection("images");
+    const imagesRef = this.firestore.collection("images");
     const querySnapshot = await imagesRef.where("userId", "==", userId).get();
 
     const images: Image[] = querySnapshot.docs.map((doc) => {
@@ -53,19 +58,16 @@ class MyconidCoreService {
     return images;
   }
 
-  async createImage(userId: string, file: Express.Multer.File): Promise<Image> {
-    // add media to file storage
-    const mediaPath = await this.Media.saveMedia(userId, file);
-
-    // create record in firestore
+  async createImage(
+    data: Pick<ImageRecord, "userId" | "mediaPath">
+  ): Promise<Image> {
     const docId = uuidv7();
-    const docRef = firestore.collection("images").doc(docId);
+    const docRef = this.firestore.collection("images").doc(docId);
 
     const imageData: ImageRecord = {
-      userId,
-      mediaPath,
       createdAt: new Date(),
       deletedAt: null,
+      ...data,
     };
 
     await docRef.set(imageData);
@@ -73,5 +75,3 @@ class MyconidCoreService {
     return { id: docRef.id, ...imageData };
   }
 }
-
-export default new MyconidCoreService();
