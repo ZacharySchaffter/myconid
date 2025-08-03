@@ -1,7 +1,7 @@
 "use server-only";
 
 import { v7 as uuidv7 } from "uuid";
-import { firestore } from "../lib/firestore.server";
+import { firestore } from "../lib/firestore";
 import { MediaService } from "./media";
 
 interface ImageRecord {
@@ -19,7 +19,7 @@ class MyconidCoreService {
   Media: MediaService = new MediaService();
   constructor() {}
 
-  async getImageByID(id: string): Promise<Image | null> {
+  async getImage(id: string): Promise<Image | null> {
     const doc = await firestore.collection("images").doc(id).get();
 
     if (!doc.exists) {
@@ -36,7 +36,7 @@ class MyconidCoreService {
     } as Image;
   }
 
-  async getImagesByUserID(userId: string): Promise<Image[]> {
+  async listImages(userId?: string, exclude?: string): Promise<Image[]> {
     const imagesRef = firestore.collection("images");
     const querySnapshot = await imagesRef.where("userId", "==", userId).get();
 

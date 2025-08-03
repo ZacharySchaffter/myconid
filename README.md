@@ -1,14 +1,20 @@
-# Turborepo starter
+# Myconid
 
-This Turborepo starter is maintained by the Turborepo core team.
+# Creating a new app
 
-## Using this example
+A generator has been added to facilitate spinning up new apps. To run, use this command:
 
-Run the following command:
-
-```sh
-npx create-turbo@latest
+```bash
+turbo gen ts-express
 ```
+
+Then, copy the `.env.template` run this command to install dependencies
+
+```bash
+pnpm -F {new_app_name} install
+```
+
+# Built with Turborepo
 
 ## What's inside?
 
@@ -16,13 +22,7 @@ This Turborepo includes the following packages/apps:
 
 ### Apps and Packages
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- `web`: The [Next.js](https://nextjs.org/) frontend app
 
 ### Utilities
 

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import dayjs from "dayjs";
 import Heading from "@/components/Heading";
 import Auth from "@/services/auth";
-import Myconid from "@/services/core";
+import Myconid from "@/services/myconid";
 import { LucideArrowLeft } from "lucide-react";
 
 type PageParams = {
@@ -17,15 +17,15 @@ const ImageDetailPage = async ({ params }: { params: Promise<PageParams> }) => {
     return notFound();
   }
 
-  console.log("Fetching image: ", id);
-  const image = await Myconid.getImageByID(id);
+  console.log(`fetching image on the server... (id: ${id})`);
+  const image = await Myconid.getImage(id);
   if (!image) {
     return notFound();
   }
 
   // this doesn't belong to you...
   if (image?.userId !== userId) {
-    console.log("image doesn't belong to current user");
+    // TODO: change state if it doesn't belong to them
   }
 
   return (
