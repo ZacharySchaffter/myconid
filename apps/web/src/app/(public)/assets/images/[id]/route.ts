@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import Myconid from "@/services/core";
+import Myconid from "@/services/myconid";
 import Auth from "@/services/auth";
 import Media from "@/services/media";
 

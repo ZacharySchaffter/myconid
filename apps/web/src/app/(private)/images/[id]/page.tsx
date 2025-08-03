@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import dayjs from "dayjs";
 import Heading from "@/components/Heading";
 import Auth from "@/services/auth";
-import Myconid from "@/services/core";
+import Myconid from "@/services/myconid";
 import { LucideArrowLeft } from "lucide-react";
 
 type PageParams = {
@@ -18,7 +18,7 @@ const ImageDetailPage = async ({ params }: { params: Promise<PageParams> }) => {
   }
 
   console.log("Fetching image: ", id);
-  const image = await Myconid.getImageByID(id);
+  const image = await Myconid.getImage(id);
   if (!image) {
     return notFound();
   }

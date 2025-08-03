@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import Modal from "./Modal";
 import Overlay from "./Overlay";
 import { useRouter } from "next/navigation";
+import Myconid from "@/services/myconid";
 
 const FILE_MAX_SIZE_MB = 4;
 
@@ -47,16 +48,6 @@ const MediaUpload: React.FC = () => {
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const router = useRouter();
 
-  const uploadFile = useCallback(async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    return fetch("/api/images", {
-      method: "POST",
-      body: formData,
-    });
-  }, []);
-
   const handleFileRejection = useCallback((rejection: FileRejection) => {
     console.error("file upload rejected: ", rejection);
     setError(formatRejectionMessage(rejection));
@@ -75,14 +66,9 @@ const MediaUpload: React.FC = () => {
       setFile(files[0]);
       setIsUploading(true);
 
-      uploadFile(files[0])
-        .then(async (res) => {
-          if (!res.ok) {
-            throw new Error("upload received error response");
-          }
-          console.log("upload successful", res);
-          const json = await res.json();
-          router.push(`/images/${json.data.id}`);
+      Myconid.createImage(files[0])
+        .then(async (data) => {
+          router.push(`/images/${data.id}`);
         })
         .catch((err) => {
           console.error("error uploading file: ", err);
@@ -95,7 +81,7 @@ const MediaUpload: React.FC = () => {
           setIsUploading(false);
         });
     },
-    [router, handleFileRejection, uploadFile]
+    [router, handleFileRejection]
   );
 
   const {

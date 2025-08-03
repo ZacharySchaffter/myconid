@@ -92,7 +92,6 @@ app.get("/images/:id", async (req: Request, res: Response) => {
  * UPLOAD IMAGE
  * ---------------------
  */
-
 app.post(
   "/images",
   upload.single("file"),
