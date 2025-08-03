@@ -18,7 +18,14 @@ let server = app.listen(PORT, () => {
 const gracefulShutdown = () => {
   console.log("beginning graceful shutdown...");
 
+  // force after 15s
+  const timeout = setTimeout(() => {
+    console.warn("force exiting after timeout");
+    process.exit(1);
+  }, 15000);
+
   server.close((err) => {
+    clearTimeout(timeout);
     if (err) {
       console.error("error during graceful shutdown:", err);
       process.exit(1);
@@ -26,12 +33,6 @@ const gracefulShutdown = () => {
     console.log("server closed, exiting process.");
     process.exit(0);
   });
-
-  // force after 15s
-  setTimeout(() => {
-    console.warn("force exiting after timeout");
-    process.exit(1);
-  }, 15000);
 };
 
 process.on("SIGTERM", gracefulShutdown);
