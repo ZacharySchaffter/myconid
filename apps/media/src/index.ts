@@ -67,7 +67,7 @@ const cache = new LRUCache<string, string>({
  * ---------------------
  */
 app.get("/", (req: Request, res: Response) => {
-  res.send("media is running");
+  res.send("media service is running");
 });
 
 app.post(

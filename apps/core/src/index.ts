@@ -43,13 +43,20 @@ async function verifySession(req: Request) {
 
 /**
  * ---------------------
- * LIST IMAGES
+ * ENDPOINTS
  * ---------------------
  */
+
 const listImagesSearchSchema = z.object({
   user: z.string().optional(),
   exclude: z.boolean().optional().default(false),
 });
+
+app.get("/", async (req: Request, res: Response) => {
+  res.send("core api service is running");
+});
+
+// LIST IMAGES
 app.get("/images", async (req: Request, res: Response) => {
   const { isValid } = await verifySession(req);
 
@@ -80,11 +87,7 @@ app.get("/images", async (req: Request, res: Response) => {
   return res.json({ data: images, success: true });
 });
 
-/**
- * ---------------------
- * GET IMAGE BY ID
- * ---------------------
- */
+// GET IMAGE
 app.get("/images/:id", async (req: Request, res: Response) => {
   const { userId, isValid } = await verifySession(req);
 
@@ -93,6 +96,9 @@ app.get("/images/:id", async (req: Request, res: Response) => {
   }
 
   const id = req.params.id;
+  if (!id) {
+    return res.status(400).json({ error: "image id is required" });
+  }
 
   let image;
   try {
@@ -110,11 +116,7 @@ app.get("/images/:id", async (req: Request, res: Response) => {
   res.json({ data: image, success: true });
 });
 
-/**
- * ---------------------
- * UPLOAD IMAGE
- * ---------------------
- */
+// UPLOAD IMAGE
 app.post(
   "/images",
   upload.single("file"),

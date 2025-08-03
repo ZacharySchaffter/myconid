@@ -1,5 +1,3 @@
-"use server-only";
-
 import { v7 as uuidv7 } from "uuid";
 import { firestore } from "../lib/firestore";
 import { MediaService } from "./media";
@@ -40,7 +38,7 @@ class MyconidCoreService {
     const imagesRef = firestore.collection("images");
     const querySnapshot = await imagesRef.where("userId", "==", userId).get();
 
-    const images: Image[] = querySnapshot.docs.map((doc) => {
+    const images: Image[] = querySnapshot.docs.map((doc: any) => {
       const data = doc.data();
       return {
         ...data,
