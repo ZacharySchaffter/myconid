@@ -9,6 +9,11 @@ interface Image extends ImageRecord {
   id: string;
 }
 
+type APIResponse<T> = {
+  data: T;
+  success: boolean;
+};
+
 class MyconidCoreService {
   baseUrl: string = process.env.NEXT_PUBLIC_CORE_API_BASE_URL!;
 
@@ -18,38 +23,43 @@ class MyconidCoreService {
     }
   }
 
-  async getImage(id: string): Promise<Image | null> {
-    return fetch(this.baseUrl + `/images${id}`).then(async (res) => {
+  async _fetch<T>(
+    path: string,
+    options?: RequestInit
+  ): Promise<APIResponse<T>> {
+    return fetch(this.baseUrl + path, options).then(async (res) => {
       let data;
       try {
         data = await res.json();
       } catch (err) {
-        console.error("error retrieving image by id: ", err);
+        console.error("response was not json encoded, parsing as text: ", err);
         data = await res.text();
       }
+
       if (!res.ok) {
         throw new Error(data);
       }
 
-      return data;
+      if (!data?.success) {
+        console.error("api response indicates error:", data);
+        throw new Error("request failed");
+      }
+
+      return data as APIResponse<T>;
+    });
+  }
+
+  async getImage(id: string): Promise<Image | null> {
+    return this._fetch<Image>(`/images/${id}`).then((res) => {
+      console.log(res);
+      return res?.data;
     });
   }
 
   // TODO: add exclude option, make userId optional
   async listImages(userId: string): Promise<Image[]> {
-    return fetch(this.baseUrl + `/images`).then(async (res) => {
-      let data;
-      try {
-        data = await res.json();
-      } catch (err) {
-        console.error("error retrieving image by id: ", err);
-        data = await res.text();
-      }
-      if (!res.ok) {
-        throw new Error(data);
-      }
-
-      return data;
+    return this._fetch<Image[]>(`/images`).then((res) => {
+      return res?.data;
     });
   }
 
@@ -57,23 +67,11 @@ class MyconidCoreService {
     const formData = new FormData();
     formData.append("file", file);
 
-    return fetch(this.baseUrl + "/images", {
+    return this._fetch<Image>("/images", {
       method: "POST",
       body: formData,
     }).then(async (res) => {
-      if (!res.ok) {
-        // Try to parse error body (json or text)
-        let errorBody;
-        try {
-          errorBody = await res.json();
-        } catch {
-          errorBody = await res.text();
-        }
-        throw new Error(`Upload failed: ${res.status} ${errorBody}`);
-      }
-
-      const image: Image = await res.json();
-      return image;
+      return res?.data;
     });
   }
 }

@@ -1,14 +1,37 @@
 import express, { Request, Response } from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import { z } from "zod";
 import multer from "multer";
 import Myconid from "./services/myconid";
+import morgan from "morgan";
 
+// parse env
 dotenv.config();
+const { PORT = 3000, ALLOWED_ORIGINS } = process.env;
 
 const upload = multer();
 const app = express();
-const PORT = process.env.PORT || 3000;
+
+app.use(morgan("dev"));
+
+const allowedOrigins = ALLOWED_ORIGINS?.split(",") ?? [];
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (
+        !origin ||
+        allowedOrigins.includes("*") ||
+        allowedOrigins.includes(origin)
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("origin isn't in allowlist"));
+      }
+    },
+    credentials: true, // if you're sending cookies or Authorization headers
+  })
+);
 
 async function verifySession(req: Request) {
   // TODO: integrate with auth service
@@ -54,7 +77,7 @@ app.get("/images", async (req: Request, res: Response) => {
     return res.status(500).send({ error: "error retrieving images" });
   });
 
-  return res.send({ images });
+  return res.send({ data: images, success: true });
 });
 
 /**
@@ -73,7 +96,7 @@ app.get("/images/:id", async (req: Request, res: Response) => {
 
   let image;
   try {
-    image = Myconid.getImage(id);
+    image = await Myconid.getImage(id);
   } catch (err) {
     return res
       .status(500)
@@ -84,7 +107,7 @@ app.get("/images/:id", async (req: Request, res: Response) => {
     res.status(404).send({ error: "image not found" });
   }
 
-  res.send({ image });
+  res.send({ data: image, success: true });
 });
 
 /**
