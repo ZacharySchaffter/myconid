@@ -1,16 +1,17 @@
 {
-  "name": "core-api",
+  "name": "core",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts"
+    "dev": "tsc --watch & nodemon dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
     "@myconid/store": "workspace:*",
     "cors": "^2.8.5",
@@ -23,12 +24,13 @@
     "zod": "^4.0.5"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/morgan": "^1.9.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^20",
-    "ts-node-dev": "^2.0.0",
+    "nodemon": "^3.1.10",
     "typescript": "^5.9.2"
   }
 }

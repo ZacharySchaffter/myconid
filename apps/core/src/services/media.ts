@@ -1,11 +1,6 @@
-import dotenv from "dotenv";
-
-// parse env
-dotenv.config();
 export class MediaService {
-  baseUrl: string = process.env.MEDIA_SERVICE_BASE_URL!;
-  constructor() {
-    if (!this.baseUrl) {
+  constructor(public baseUrl: string) {
+    if (!baseUrl) {
       console.error("MEDIA_SERVICE_BASE_URL is required and unset");
     }
   }
@@ -29,8 +24,14 @@ export class MediaService {
   }
 
   async saveMedia(userId: string, file: Express.Multer.File): Promise<string> {
+    const arrayBuffer = file.buffer.buffer.slice(
+      file.buffer.byteOffset,
+      file.buffer.byteOffset + file.buffer.byteLength
+    ) as ArrayBuffer;
+
+    const blob = new Blob([arrayBuffer], { type: file.mimetype });
     const formData = new FormData();
-    const blob = new Blob([file.buffer], { type: file.mimetype });
+
     formData.append("file", blob, file.originalname);
     formData.append("user_id", userId);
 
@@ -40,5 +41,3 @@ export class MediaService {
     });
   }
 }
-
-export default new MediaService();

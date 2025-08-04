@@ -30,13 +30,13 @@ export default function (plop: PlopTypes.NodePlopAPI) {
       {
         type: "add",
         path: "apps/{{SERVICE_NAME}}/.env",
-        template: `
-        PORT={{DEFAULT_PORT}}
-        ALLOWED_ORIGINS="*"
-        `,
+        templateFile: "templates/ts-express/.env.template",
       },
-      // TODO: dynamically add tsconfig to avoid the templates directory linting
-      // itself
+      {
+        type: "add",
+        path: "apps/{{SERVICE_NAME}}/.tsconfig.json",
+        templateFile: "templates/ts-express/.tsconfig.template.json",
+      },
     ],
   });
 }

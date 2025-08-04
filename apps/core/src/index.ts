@@ -3,13 +3,28 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { z } from "zod";
 import multer from "multer";
-import Myconid from "./services/myconid";
 import morgan from "morgan";
+import { Store } from "@myconid/store";
+import { MediaService } from "./services/media.js";
+import { AnalysisService } from "./services/analysis.js";
+import { ImageAnalysis, ImageRecord } from "@myconid/store/types";
+import { translateAnalysisToImageAnalysis } from "./translators/analysis.js";
 
 // parse env
 dotenv.config();
-const { PORT = 3000, ALLOWED_ORIGINS } = process.env;
+const {
+  PORT = 3000,
+  ALLOWED_ORIGINS,
+  FIREBASE_SERVICE_ACCOUNT_BASE64,
+  MEDIA_SERVICE_BASE_URL,
+  ANALYSIS_SERVICE_BASE_URL,
+} = process.env;
 
+/**
+ * ---------------------
+ * EXPRESS CONFIG
+ * ---------------------
+ */
 const upload = multer();
 const app = express();
 
@@ -33,6 +48,17 @@ app.use(
   })
 );
 
+/**
+ * ---------------------
+ * CLIENTS
+ * ---------------------
+ */
+
+const store = new Store(FIREBASE_SERVICE_ACCOUNT_BASE64!);
+
+const media = new MediaService(MEDIA_SERVICE_BASE_URL!);
+const analysis = new AnalysisService(ANALYSIS_SERVICE_BASE_URL!);
+
 async function verifySession(req: Request) {
   // TODO: integrate with auth service
   return {
@@ -43,13 +69,20 @@ async function verifySession(req: Request) {
 
 /**
  * ---------------------
- * LIST IMAGES
+ * ENDPOINTS
  * ---------------------
  */
+
 const listImagesSearchSchema = z.object({
   user: z.string().optional(),
   exclude: z.boolean().optional().default(false),
 });
+
+app.get("/", async (req: Request, res: Response) => {
+  res.send("core api service is running");
+});
+
+// LIST IMAGES
 app.get("/images", async (req: Request, res: Response) => {
   const { isValid } = await verifySession(req);
 
@@ -69,7 +102,7 @@ app.get("/images", async (req: Request, res: Response) => {
   }
   const { user: userId, exclude } = result.data;
 
-  const images = await Myconid.listImages(userId).catch((err) => {
+  const images = await store.listImages(userId).catch((err: unknown) => {
     console.error(
       `error: failed to retrieve images (user id: ${userId}, exclude: ${exclude}):`,
       err
@@ -80,11 +113,7 @@ app.get("/images", async (req: Request, res: Response) => {
   return res.json({ data: images, success: true });
 });
 
-/**
- * ---------------------
- * GET IMAGE BY ID
- * ---------------------
- */
+// GET IMAGE
 app.get("/images/:id", async (req: Request, res: Response) => {
   const { userId, isValid } = await verifySession(req);
 
@@ -93,10 +122,13 @@ app.get("/images/:id", async (req: Request, res: Response) => {
   }
 
   const id = req.params.id;
+  if (!id) {
+    return res.status(400).json({ error: "image id is required" });
+  }
 
   let image;
   try {
-    image = await Myconid.getImage(id);
+    image = await store.getImage(id);
   } catch (err) {
     return res
       .status(500)
@@ -110,11 +142,7 @@ app.get("/images/:id", async (req: Request, res: Response) => {
   res.json({ data: image, success: true });
 });
 
-/**
- * ---------------------
- * UPLOAD IMAGE
- * ---------------------
- */
+// UPLOAD IMAGE
 app.post(
   "/images",
   upload.single("file"),
@@ -130,7 +158,29 @@ app.post(
       return res.status(400).json({ error: "missing file" });
     }
 
-    const image = await Myconid.createImage(userId, imageFile);
+    let mediaPath: string = "";
+    try {
+      mediaPath = await media.saveMedia(userId, imageFile);
+    } catch (err) {
+      console.error("error saving media");
+      return res.status(500).json({ error: "error saving image file" });
+    }
+
+    let analysisResults: ImageAnalysis | undefined;
+    try {
+      const results = await analysis.analyzeImage(imageFile);
+      analysisResults = translateAnalysisToImageAnalysis(results);
+    } catch (err) {
+      console.error("error getting analysis results:", err);
+      // don't error!
+    }
+
+    const imageRecord = {
+      userId,
+      mediaPath,
+      analysis: analysisResults,
+    };
+    const image = await store.createImage(imageRecord);
 
     res.json({ success: true, data: image });
   }

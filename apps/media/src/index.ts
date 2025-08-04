@@ -67,7 +67,7 @@ const cache = new LRUCache<string, string>({
  * ---------------------
  */
 app.get("/", (req: Request, res: Response) => {
-  res.send("media is running");
+  res.send("media service is running");
 });
 
 app.post(
@@ -78,15 +78,18 @@ app.post(
     const file = req.file;
     const userId = req.body.user_id;
     if (!userId) {
+      console.error("error: user_id is required");
       return res.status(400).json({ error: "user id is required" });
     }
     if (!file) {
+      console.error("error: file is required");
       return res.status(400).json({ error: "file is required" });
     }
 
     const timestamp = Date.now();
     const filePath = `images/${userId}/${timestamp}-${file.originalname}`;
 
+    console.log(`saving image to ${filePath}...`);
     const fileUpload = storage.file(filePath);
 
     // store media in firebase DB
@@ -101,10 +104,11 @@ app.post(
         },
         resumable: false,
       });
-      res.send(filePath);
+      console.log("saved image, returning filepath");
+      return res.send(filePath);
     } catch (err) {
       console.error("error saving media:", err);
-      res.status(500).json({ error: "error saving media" });
+      return res.status(500).json({ error: "error saving media" });
     }
   }
 );
@@ -122,6 +126,7 @@ app.get("/media/:id/url", async (req: Request, res: Response) => {
     // check cache for image id
     const cachedUrl = cache.get(imageId);
     if (cachedUrl) {
+      console.log("cached", cachedUrl);
       return res.redirect(cachedUrl);
     }
 

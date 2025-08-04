@@ -1,13 +1,4 @@
-interface ImageRecord {
-  userId: string;
-  mediaPath: string;
-  createdAt: Date;
-  deletedAt?: Date | null;
-}
-
-interface Image extends ImageRecord {
-  id: string;
-}
+import { type Image } from "@myconid/store/types";
 
 type APIResponse<T> = {
   data: T;
@@ -49,9 +40,8 @@ class MyconidCoreService {
     });
   }
 
-  async getImage(id: string): Promise<Image | null> {
+  async getImage(id: string): Promise<Image> {
     return this._fetch<Image>(`/images/${id}`).then((res) => {
-      console.log(res);
       return res?.data;
     });
   }

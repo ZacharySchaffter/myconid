@@ -2,6 +2,8 @@ import admin from "firebase-admin";
 import { v7 as uuidv7 } from "uuid";
 import { Image, ImageRecord } from "./types.js";
 
+export * as Types from "./types.js";
+
 export class Store {
   private firestore: admin.firestore.Firestore;
 
@@ -59,7 +61,7 @@ export class Store {
   }
 
   async createImage(
-    data: Pick<ImageRecord, "userId" | "mediaPath">
+    data: Pick<ImageRecord, "userId" | "mediaPath" | "analysis">
   ): Promise<Image> {
     const docId = uuidv7();
     const docRef = this.firestore.collection("images").doc(docId);
