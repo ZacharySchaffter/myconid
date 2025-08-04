@@ -5,6 +5,8 @@ import { z } from "zod";
 import multer from "multer";
 import morgan from "morgan";
 import { Store } from "@myconid/store";
+import { MediaService } from "./services/media.js";
+import { AnalysisService } from "./services/analysis.js";
 
 // parse env
 dotenv.config();
@@ -12,6 +14,8 @@ const {
   PORT = 3000,
   ALLOWED_ORIGINS,
   FIREBASE_SERVICE_ACCOUNT_BASE64,
+  MEDIA_SERVICE_BASE_URL,
+  ANALYSIS_SERVICE_BASE_URL,
 } = process.env;
 
 /**
@@ -49,6 +53,9 @@ app.use(
  */
 
 const store = new Store(FIREBASE_SERVICE_ACCOUNT_BASE64!);
+
+const media = new MediaService();
+const analysis = new AnalysisService();
 
 async function verifySession(req: Request) {
   // TODO: integrate with auth service
@@ -149,7 +156,16 @@ app.post(
       return res.status(400).json({ error: "missing file" });
     }
 
-    const mediaPath = `images/$${userId}/${Date.now()}-${imageFile.filename}`;
+    let mediaPath: string = "";
+    try {
+      mediaPath = await media.saveMedia(userId, imageFile);
+    } catch (err) {
+      console.error("error saving media");
+      return res.status(500).json({ error: "error saving image file" });
+    }
+
+    // TODO: run analysis
+
     const image = await store.createImage({ userId, mediaPath });
 
     res.json({ success: true, data: image });

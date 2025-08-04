@@ -1,8 +1,3 @@
-import dotenv from "dotenv";
-
-// parse env
-dotenv.config();
-
 export class MediaService {
   baseUrl: string = process.env.MEDIA_SERVICE_BASE_URL!;
   constructor() {
@@ -47,5 +42,3 @@ export class MediaService {
     });
   }
 }
-
-export default new MediaService();

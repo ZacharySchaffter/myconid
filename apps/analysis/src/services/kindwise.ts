@@ -1,37 +1,3 @@
-export type KindwiseIdentificationResponse = {
-  classification: {
-    suggestions: Array<{
-      id: string;
-      name: string;
-      probability: number;
-      details: {
-        common_names: string[];
-        url: string;
-        edibility: string;
-        look_alike: Array<{
-          url: string;
-          entity_id: string;
-          name: string;
-        }>;
-        psychoactive: boolean;
-        description: {
-          value: string;
-          citation: string;
-          license_name: string;
-          license_url: string;
-        };
-        language: string;
-        entity_id: string;
-      };
-    }>;
-  };
-  is_mushroom: {
-    probability: number;
-    threshold: number;
-    binary: boolean;
-  };
-};
-
 class KindwiseMushroomAnalysis {
   private baseUrl = "https://mushroom.kindwise.com/api/v1";
 
