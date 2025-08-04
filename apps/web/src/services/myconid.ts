@@ -1,13 +1,4 @@
-interface MyconidImageRecord {
-  userId: string;
-  mediaPath: string;
-  createdAt: Date;
-  deletedAt?: Date | null;
-}
-
-export interface MyconidImage extends MyconidImageRecord {
-  id: string;
-}
+import { type Image } from "@myconid/store/types";
 
 type APIResponse<T> = {
   data: T;
@@ -49,24 +40,24 @@ class MyconidCoreService {
     });
   }
 
-  async getImage(id: string): Promise<MyconidImage | null> {
-    return this._fetch<MyconidImage>(`/images/${id}`).then((res) => {
+  async getImage(id: string): Promise<Image> {
+    return this._fetch<Image>(`/images/${id}`).then((res) => {
       return res?.data;
     });
   }
 
   // TODO: add exclude option, make userId optional
-  async listImages(userId: string): Promise<MyconidImage[]> {
-    return this._fetch<MyconidImage[]>(`/images`).then((res) => {
+  async listImages(userId: string): Promise<Image[]> {
+    return this._fetch<Image[]>(`/images`).then((res) => {
       return res?.data;
     });
   }
 
-  async createImage(file: File): Promise<MyconidImage> {
+  async createImage(file: File): Promise<Image> {
     const formData = new FormData();
     formData.append("file", file);
 
-    return this._fetch<MyconidImage>("/images", {
+    return this._fetch<Image>("/images", {
       method: "POST",
       body: formData,
     }).then(async (res) => {

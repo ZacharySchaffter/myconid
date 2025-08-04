@@ -33,7 +33,7 @@ export interface ImageRecord {
   mediaPath: string;
   createdAt: Date;
   deletedAt?: Date | null;
-  analysis?: {};
+  analysis?: ImageAnalysis;
 }
 
 export interface Image extends ImageRecord {

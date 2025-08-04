@@ -15,6 +15,7 @@ const eslintConfig = [
     rules: {
       "@next/next/no-img-element": "off",
       "@typescript-eslint/no-unused-vars": "warn",
+      "import/no-anonymous-default-export": "off",
     },
   },
 ];
