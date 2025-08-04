@@ -43,11 +43,25 @@ export class Store {
     } as Image;
   }
 
-  async listImages(userId?: string, exclude?: string): Promise<Image[]> {
+  async listImages(options?: {
+    userId?: string;
+    exclude?: boolean;
+  }): Promise<Image[]> {
     const imagesRef = this.firestore.collection("images");
-    const querySnapshot = await imagesRef.where("userId", "==", userId).get();
 
-    const images: Image[] = querySnapshot.docs.map((doc) => {
+    let snapshot: admin.firestore.QuerySnapshot<
+      admin.firestore.DocumentData,
+      admin.firestore.DocumentData
+    >;
+    if (options?.userId) {
+      snapshot = await imagesRef
+        .where("userId", options?.exclude ? "!=" : "==", options.userId)
+        .get();
+    } else {
+      snapshot = await imagesRef.get();
+    }
+
+    const images: Image[] = snapshot.docs.map((doc) => {
       const data = doc.data();
       return {
         ...data,
