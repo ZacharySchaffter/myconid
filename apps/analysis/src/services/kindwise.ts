@@ -27,8 +27,9 @@ class KindwiseMushroomAnalysis {
 
       const res = await fetch(
         this.baseUrl +
-          "/identification?details=taxonomy,common_names,url,description,edibility,psychoactive,url,look_alike&async=false",
+          "/identification?details=taxonomy,common_names,url,description,edibility,psychoactive,url,look_alike",
         {
+          method: "POST",
           headers: {
             "Api-Key": this.apiKey,
           },
