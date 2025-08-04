@@ -37,11 +37,19 @@ const AccountPage = async () => {
       <MediaUpload />
 
       {selfImages.length > 0 && (
-        <ImageGrid title="Your collection" images={selfImages} />
+        <ImageGrid
+          title="Your collection"
+          images={selfImages}
+          className="mt-5"
+        />
       )}
 
       {otherImages.length > 0 && (
-        <ImageGrid title="Uploaded by others" images={otherImages} />
+        <ImageGrid
+          title="Uploaded by others"
+          images={otherImages}
+          className="mt-5"
+        />
       )}
     </div>
   );

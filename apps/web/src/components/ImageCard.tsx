@@ -4,6 +4,7 @@ import { type Image } from "@myconid/store/types";
 import dayjs from "dayjs";
 import { CircleAlert, CircleCheck } from "lucide-react";
 import Link from "next/link";
+import { Button } from "./ui/button";
 
 type Props = {
   image: Image;
@@ -19,33 +20,37 @@ const ImageCard: React.FC<Props> = ({ image }) => {
     : null;
 
   return (
-    <div className="bg-white rounded shadow-md overflow-hidden flex flex-col">
-      <div className="relative aspect-square w-full">
+    <div className="bg-white rounded flex flex-col">
+      <Link
+        href={`/images/${image.id}`}
+        className="relative aspect-square w-full"
+      >
         <img
           src={imageUrl}
           alt={title}
           className="object-cover w-full h-full"
         />
-        <div className="absolute top-2 right-2 bg-white bg-opacity-80 p-1 rounded-full">
+        <div className="absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 bg-black p-1 rounded-full w-5 h-5">
           {confidence ? (
-            <CircleCheck className="text-gray-700" />
+            <CircleCheck className="text-white absolute inset-0 w-full h-full" />
           ) : (
-            <CircleAlert className="text-gray-700" />
+            <CircleAlert className="text-white absolute inset-0 w-full h-full" />
           )}
         </div>
-      </div>
+      </Link>
 
-      <div className="p-4 flex flex-col gap-2">
+      <div className="flex flex-col gap-1 pt-1">
         <p className="text-xs text-gray-500">{createdAt}</p>
         <h2 className="text-sm font-medium">
           {title}{" "}
-          {confidence && <span className="text-gray-500">({confidence}%)</span>}
+          {confidence && (
+            <span className="text-gray-400 text-xs">({confidence}%)</span>
+          )}
         </h2>
-        <Link
-          href={`/images/${image.id}`}
-          className="mt-2 inline-block text-blue-600 text-sm hover:underline"
-        >
-          View details
+        <Link href={`/images/${image.id}`} className="mt-2 w-full">
+          <Button size="sm" className="px-2 text-xs w-full">
+            View details
+          </Button>
         </Link>
       </div>
     </div>
