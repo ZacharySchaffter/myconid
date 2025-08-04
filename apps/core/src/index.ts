@@ -7,6 +7,8 @@ import morgan from "morgan";
 import { Store } from "@myconid/store";
 import { MediaService } from "./services/media.js";
 import { AnalysisService } from "./services/analysis.js";
+import { ImageAnalysis, ImageRecord } from "@myconid/store/types";
+import { translateAnalysisToImageAnalysis } from "./translators/analysis.js";
 
 // parse env
 dotenv.config();
@@ -54,8 +56,8 @@ app.use(
 
 const store = new Store(FIREBASE_SERVICE_ACCOUNT_BASE64!);
 
-const media = new MediaService();
-const analysis = new AnalysisService();
+const media = new MediaService(MEDIA_SERVICE_BASE_URL!);
+const analysis = new AnalysisService(ANALYSIS_SERVICE_BASE_URL!);
 
 async function verifySession(req: Request) {
   // TODO: integrate with auth service
@@ -164,9 +166,21 @@ app.post(
       return res.status(500).json({ error: "error saving image file" });
     }
 
-    // TODO: run analysis
+    let analysisResults: ImageAnalysis | undefined;
+    try {
+      const results = await analysis.analyzeImage(imageFile);
+      analysisResults = translateAnalysisToImageAnalysis(results);
+    } catch (err) {
+      console.error("error getting analysis results:", err);
+      // don't error!
+    }
 
-    const image = await store.createImage({ userId, mediaPath });
+    const imageRecord = {
+      userId,
+      mediaPath,
+      analysis: analysisResults,
+    };
+    const image = await store.createImage(imageRecord);
 
     res.json({ success: true, data: image });
   }

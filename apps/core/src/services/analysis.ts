@@ -1,6 +1,6 @@
-type AnalysisResponse = {
+export type AnalysisResponse = {
   classification: {
-    suggestions: Array<{
+    suggestions: {
       id: string;
       name: string;
       probability: number;
@@ -22,8 +22,16 @@ type AnalysisResponse = {
         };
         language: string;
         entity_id: string;
+        taxonomy: {
+          class: string;
+          genus: string;
+          order: string;
+          family: string;
+          phylum: string;
+          kingdom: string;
+        };
       };
-    }>;
+    }[];
   };
   is_mushroom: {
     probability: number;
@@ -33,8 +41,7 @@ type AnalysisResponse = {
 };
 
 export class AnalysisService {
-  baseUrl: string = process.env.ANALYSIS_SERVICE_BASE_URL!;
-  constructor() {
+  constructor(public baseUrl: string) {
     if (!this.baseUrl) {
       console.error("ANALYSIS_SERVICE_BASE_URL is required and unset");
     }

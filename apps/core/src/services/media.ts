@@ -1,7 +1,6 @@
 export class MediaService {
-  baseUrl: string = process.env.MEDIA_SERVICE_BASE_URL!;
-  constructor() {
-    if (!this.baseUrl) {
+  constructor(public baseUrl: string) {
+    if (!baseUrl) {
       console.error("MEDIA_SERVICE_BASE_URL is required and unset");
     }
   }
