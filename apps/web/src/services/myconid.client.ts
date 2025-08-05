@@ -1,3 +1,5 @@
+"use client";
+
 import { type Image } from "@myconid/store/types";
 
 type APIResponse<T> = {
@@ -5,10 +7,10 @@ type APIResponse<T> = {
   success: boolean;
 };
 
-class MyconidCoreService {
+export class MyconidCoreService {
   baseUrl: string = process.env.NEXT_PUBLIC_CORE_API_BASE_URL!;
 
-  constructor() {
+  constructor(private sessionToken: string) {
     if (!this.baseUrl) {
       console.error("core api service base url not set and is required!");
     }
@@ -18,7 +20,12 @@ class MyconidCoreService {
     path: string,
     options?: RequestInit
   ): Promise<APIResponse<T>> {
-    return fetch(this.baseUrl + path, options).then(async (res) => {
+    return fetch(this.baseUrl + path, {
+      ...(options || {}),
+      headers: {
+        Authorization: `Bearer ${this.sessionToken}`,
+      },
+    }).then(async (res) => {
       let data;
       try {
         data = await res.json();
@@ -73,5 +80,3 @@ class MyconidCoreService {
     });
   }
 }
-
-export default new MyconidCoreService();

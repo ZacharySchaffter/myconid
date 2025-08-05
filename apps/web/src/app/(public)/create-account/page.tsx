@@ -1,7 +1,7 @@
 "use client";
 
+import CreateAccountForm from "@/components/CreateAccountForm";
 import Heading from "@/components/Heading";
-import LoginForm from "@/components/LoginForm";
 import StyledLink from "@/components/StyledLink";
 
 const CreateAccountPage: React.FC = () => {
@@ -13,7 +13,7 @@ const CreateAccountPage: React.FC = () => {
       <p className="pb-3">
         Create an account to start identifying fungi for free
       </p>
-      <LoginForm className="mx-auto w-full max-w-md border border-black py-6 px-4 rounded-md" />
+      <CreateAccountForm className="mx-auto w-full max-w-md border border-black py-6 px-4 rounded-md" />
       <p className="mt-4 text-center">
         Already have an account?
         <br />

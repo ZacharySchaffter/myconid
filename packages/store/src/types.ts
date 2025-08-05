@@ -3,28 +3,25 @@ export type LookAlike = {
   name?: string;
 };
 export interface ImageAnalysis {
-  isMushroom?: {
-    confidence: number;
-    binary: boolean;
-  };
-  name?: string;
-  commonNames?: string[];
-  lookAlikes?: LookAlike[];
-  description?: {
+  confidence: number;
+  name: string | null;
+  commonNames: string[] | null;
+  lookAlikes: LookAlike[] | null;
+  description: {
     content?: string;
     citation?: string;
-  };
-  taxonomy?: {
-    class?: string;
-    genus?: string;
-    order?: string;
-    family?: string;
-    phylum?: string;
-    kingdom?: string;
-  };
+  } | null;
+  taxonomy: {
+    class: string | null;
+    genus: string | null;
+    order: string | null;
+    family: string | null;
+    phylum: string | null;
+    kingdom: string | null;
+  } | null;
   traits: {
-    psychoactive?: boolean;
-    edibility?: string;
+    psychoactive: boolean | null;
+    edibility: string | null;
   };
 }
 
@@ -33,7 +30,7 @@ export interface ImageRecord {
   mediaPath: string;
   createdAt: Date;
   deletedAt?: Date | null;
-  analysis?: ImageAnalysis;
+  analysis?: ImageAnalysis | null;
 }
 
 export interface Image extends ImageRecord {

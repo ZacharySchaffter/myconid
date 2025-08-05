@@ -11,7 +11,6 @@ export class MediaService {
       try {
         data = await res.clone().json();
       } catch (err) {
-        console.error("response was not json encoded, parsing as text: ", err);
         data = await res.text();
       }
 

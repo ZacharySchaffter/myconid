@@ -5,22 +5,21 @@ export type AnalysisResponse = {
       name: string;
       probability: number;
       details: {
-        common_names: string[];
+        common_names: string[] | null;
         url: string;
-        edibility: string;
+        edibility: string | null;
         look_alike: Array<{
           url: string;
           entity_id: string;
           name: string;
-        }>;
-        psychoactive: boolean;
+        }> | null;
+        psychoactive: boolean | null;
         description: {
           value: string;
           citation: string;
           license_name: string;
           license_url: string;
-        };
-        language: string;
+        } | null;
         entity_id: string;
         taxonomy: {
           class: string;
@@ -29,7 +28,7 @@ export type AnalysisResponse = {
           family: string;
           phylum: string;
           kingdom: string;
-        };
+        } | null;
       };
     }[];
   };

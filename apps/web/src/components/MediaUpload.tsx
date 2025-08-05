@@ -1,13 +1,14 @@
 "use client";
 
 import clsx from "clsx";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { Accept, useDropzone, FileRejection, ErrorCode } from "react-dropzone";
 import { Button } from "./ui/button";
 import Modal from "./Modal";
 import Overlay from "./Overlay";
 import { useRouter } from "next/navigation";
-import Myconid from "@/services/myconid";
+import { MyconidCoreService } from "@/services/myconid.client";
+import { useAuthContext } from "@/context/auth";
 
 const FILE_MAX_SIZE_MB = 4;
 
@@ -25,7 +26,6 @@ const formatRejectionMessage = (rejection: FileRejection): string => {
       return `${
         filename
       } is not an accepted file type (supported file types: ${acceptedFileTypesStrList}).`;
-      break;
     }
     case ErrorCode.FileTooLarge: {
       const maxSizeMb = FILE_MAX_SIZE_MB;
@@ -43,6 +43,8 @@ const acceptedFileTypesStrList = Object.values(ACCEPTED_FILE_TYPE_MAP || [])
   .toUpperCase();
 
 const MediaUpload: React.FC = () => {
+  const { token } = useAuthContext();
+  const myconid = useMemo(() => new MyconidCoreService(token || ""), [token]);
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -68,7 +70,8 @@ const MediaUpload: React.FC = () => {
       setFile(files[0]);
       setIsUploading(true);
 
-      Myconid.createImage(files[0])
+      myconid
+        .createImage(files[0])
         .then(async (data) => {
           router.push(`/images/${data.id}`);
         })
@@ -83,7 +86,7 @@ const MediaUpload: React.FC = () => {
           setIsUploading(false);
         });
     },
-    [router, handleFileRejection]
+    [router, handleFileRejection, myconid]
   );
 
   const {

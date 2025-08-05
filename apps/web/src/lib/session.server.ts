@@ -7,9 +7,21 @@ const SESSION_COOKIE_KEY = "session";
 
 export type SessionToken = string;
 
-export async function getSessionToken(): Promise<SessionToken | null> {
+export type Session = {
+  user_id: string;
+  username: string;
+  token: string;
+};
+
+export async function getSession(): Promise<Session | null> {
   const cookieStore = await cookies();
-  return cookieStore.get(SESSION_COOKIE_KEY)?.value ?? null;
+  const cookieValue = cookieStore.get(SESSION_COOKIE_KEY)?.value;
+  if (!cookieValue) return null;
+  try {
+    return JSON.parse(cookieValue);
+  } catch {
+    return null;
+  }
 }
 
 export function getSessionTokenFromRequest(
@@ -20,10 +32,10 @@ export function getSessionTokenFromRequest(
 
 export function setSessionTokenForResponse(
   response: NextResponse,
-  token: SessionToken,
+  session: Session,
   maxAgeSeconds = 60 * 60 * 24
 ): void {
-  response.cookies.set(SESSION_COOKIE_KEY, token, {
+  response.cookies.set(SESSION_COOKIE_KEY, JSON.stringify(session), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

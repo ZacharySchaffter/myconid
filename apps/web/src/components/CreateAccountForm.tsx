@@ -11,9 +11,9 @@ type Props = {
   className?: string;
 };
 
-const LoginForm: React.FC<Props> = ({ className }) => {
+const CreateAccountForm: React.FC<Props> = ({ className }) => {
   const router = useRouter();
-  const { login } = useAuthContext();
+  const { register } = useAuthContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -24,10 +24,12 @@ const LoginForm: React.FC<Props> = ({ className }) => {
     setLoading(true);
 
     try {
-      await login({ username, password });
+      await register({ username, password });
       router.push("/account");
-    } catch {
-      setError("Invalid username or password.  Please try again.");
+    } catch (err) {
+      console.error(err);
+      alert(err);
+      setError("Error registering. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -73,11 +75,11 @@ const LoginForm: React.FC<Props> = ({ className }) => {
           className="w-full cursor-pointer"
           disabled={loading}
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "Creating your account..." : "Create Account"}
         </Button>
       </div>
     </form>
   );
 };
 
-export default LoginForm;
+export default CreateAccountForm;

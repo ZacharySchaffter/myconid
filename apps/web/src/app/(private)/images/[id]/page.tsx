@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import dayjs from "dayjs";
 import Heading from "@/components/Heading";
 import Auth from "@/services/auth";
-import Myconid from "@/services/myconid";
+import Myconid from "@/services/myconid.server";
 import { LucideArrowLeft } from "lucide-react";
 import { Image } from "@myconid/store/types";
 import AnalysisResults from "./AnalysisResults";
