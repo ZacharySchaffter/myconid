@@ -5,13 +5,14 @@ import { redirect } from "next/navigation";
 import Heading from "@/components/Heading";
 import MediaUpload from "@/components/MediaUpload";
 import auth from "@/services/auth";
-import myconid from "@/services/myconid";
+import myconid from "@/services/myconid.server";
 import ImageGrid from "@/components/ImageGrid";
 import EmptyCollection from "./EmptyCollection";
 
 const AccountPage = async () => {
   const { userId } = await auth.verifySession();
 
+  console.log("userId:", userId);
   if (!userId) {
     redirect("/");
   }

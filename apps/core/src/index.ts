@@ -7,7 +7,7 @@ import morgan from "morgan";
 import { Store } from "@myconid/store";
 import { MediaService } from "./services/media.js";
 import { AnalysisService } from "./services/analysis.js";
-import { ImageAnalysis, ImageRecord } from "@myconid/store/types";
+import { ImageAnalysis } from "@myconid/store/types";
 import { translateAnalysisToImageAnalysis } from "./translators/analysis.js";
 
 // parse env
@@ -18,6 +18,7 @@ const {
   FIREBASE_SERVICE_ACCOUNT_BASE64,
   MEDIA_SERVICE_BASE_URL,
   ANALYSIS_SERVICE_BASE_URL,
+  AUTH_SERVICE_BASE_URL,
 } = process.env;
 
 /**
@@ -58,12 +59,36 @@ const store = new Store(FIREBASE_SERVICE_ACCOUNT_BASE64!);
 const media = new MediaService(MEDIA_SERVICE_BASE_URL!);
 const analysis = new AnalysisService(ANALYSIS_SERVICE_BASE_URL!);
 
-async function verifySession(req: Request) {
-  // TODO: integrate with auth service
-  return {
-    userId: "fake-id-123",
-    isValid: true,
-  };
+async function verifySession(
+  req: Request
+): Promise<{ user_id: string; isValid: boolean }> {
+  const authHeader = req.headers["authorization"];
+
+  if (!authHeader) {
+    throw Error("no auth header passed");
+  }
+
+  const token = authHeader.split(" ")[1]; // Get the part after "Bearer"
+
+  if (!token) {
+    throw Error("no token passed");
+  }
+
+  const res = await fetch(AUTH_SERVICE_BASE_URL + "/validate", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ token }),
+  });
+
+  if (!res.ok) {
+    throw new Error("error validating token");
+  }
+
+  const data = await res.json();
+
+  return { user_id: String(data.user_id), isValid: true };
 }
 
 /**
@@ -156,7 +181,7 @@ app.post(
   "/images",
   upload.single("file"),
   async (req: Request, res: Response) => {
-    const { userId, isValid } = await verifySession(req);
+    const { user_id: userId, isValid } = await verifySession(req);
 
     if (!isValid) {
       return res.status(401).json({ error: "not authenticated" });

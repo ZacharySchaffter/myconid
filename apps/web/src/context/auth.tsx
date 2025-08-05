@@ -1,5 +1,6 @@
 "use client";
 
+import { Session } from "@/lib/session.server";
 import { useRouter } from "next/navigation";
 import React, { PropsWithChildren, useContext, useMemo, useState } from "react";
 
@@ -11,6 +12,7 @@ type UserCredentials = {
 type AuthContextData = {
   isLoggedIn: boolean;
   username: string | null;
+  token: string | null;
   logout: () => Promise<void>;
   login: (credentials: UserCredentials) => Promise<void>;
   register: (credentials: UserCredentials) => Promise<void>;
@@ -19,6 +21,7 @@ type AuthContextData = {
 const defaultData: AuthContextData = {
   isLoggedIn: false,
   username: null,
+  token: null,
   logout: () => Promise.reject("not initialized"),
   login: () => Promise.reject("not initialized"),
   register: () => Promise.reject("not initialized"),
@@ -26,7 +29,7 @@ const defaultData: AuthContextData = {
 
 const AuthContext = React.createContext(defaultData);
 type Props = {
-  session: string | null;
+  session: Session | null;
 };
 
 export const AuthContextProvider: React.FC<PropsWithChildren<Props>> = ({
@@ -36,19 +39,26 @@ export const AuthContextProvider: React.FC<PropsWithChildren<Props>> = ({
   const [isAuthed, setIsAuthed] = useState(!!session);
   const router = useRouter();
 
-  // TODO: Fetch user details and persist them here
+  const [username, setUsername] = useState(session?.username || null);
+  const [token, setToken] = useState(session?.token || null);
+
   const ctx = useMemo(() => {
     return {
       isLoggedIn: isAuthed,
-      username: null,
+      token: token,
+      username: username,
       login: async (credentials: UserCredentials) => {
         return fetch("/api/auth/login", {
           method: "POST",
           body: JSON.stringify(credentials),
-        }).then((res) => {
+        }).then(async (res) => {
           if (!res.ok) {
             throw new Error(`login error: ${res.status} - ${res.statusText}`);
           }
+          const data = await res.json();
+          debugger;
+          setToken(data.token);
+          setUsername(data.username);
           setIsAuthed(true);
           router.push("/account");
         });
@@ -57,12 +67,16 @@ export const AuthContextProvider: React.FC<PropsWithChildren<Props>> = ({
         return fetch("/api/auth/register", {
           method: "POST",
           body: JSON.stringify(credentials),
-        }).then((res) => {
+        }).then(async (res) => {
           if (!res.ok) {
             throw new Error(
               `registration error: ${res.status} - ${res.statusText}`
             );
           }
+          const data = await res.json();
+          debugger;
+          setToken(data.token);
+          setUsername(data.username);
           setIsAuthed(true);
           router.push("/account");
         });
@@ -71,6 +85,8 @@ export const AuthContextProvider: React.FC<PropsWithChildren<Props>> = ({
         return fetch("/api/auth/logout", { method: "POST" })
           .then(() => {
             console.log("logout successful, redirecting to homepage");
+            setUsername(null);
+            setToken(null);
             setIsAuthed(false);
             router.push("/");
           })
@@ -79,7 +95,7 @@ export const AuthContextProvider: React.FC<PropsWithChildren<Props>> = ({
           });
       },
     };
-  }, [isAuthed, router]);
+  }, [isAuthed, router, token, username]);
 
   return <AuthContext.Provider value={ctx}>{children}</AuthContext.Provider>;
 };

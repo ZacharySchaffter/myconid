@@ -24,11 +24,9 @@ const LoginForm: React.FC<Props> = ({ className }) => {
     setLoading(true);
 
     try {
-      const res = await login({ username, password });
-
+      await login({ username, password });
       router.push("/account");
-    } catch (err) {
-      console.error(err);
+    } catch {
       setError("Invalid username or password.  Please try again.");
     } finally {
       setLoading(false);

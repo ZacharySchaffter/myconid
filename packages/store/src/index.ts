@@ -44,32 +44,31 @@ export class Store {
   }
 
   async listImages(options?: {
-    userId?: string;
+    userId?: number;
     exclude?: boolean;
   }): Promise<Image[]> {
     const imagesRef = this.firestore.collection("images");
 
-    let snapshot: admin.firestore.QuerySnapshot<
-      admin.firestore.DocumentData,
-      admin.firestore.DocumentData
-    >;
+    let snapshot = await imagesRef.get();
+    let docs = snapshot.docs;
+
     if (options?.userId) {
-      snapshot = await imagesRef
-        .where("userId", options?.exclude ? "!=" : "==", options.userId)
-        .get();
-    } else {
-      snapshot = await imagesRef.get();
+      docs = options.exclude
+        ? docs.filter((doc) => doc.data().userId !== options.userId)
+        : docs.filter((doc) => doc.data().userId === options.userId);
     }
 
-    const images: Image[] = snapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        ...data,
-        id: doc.id,
-        createdAt: data.createdAt.toDate(),
-        deletedAt: data.deletedAt?.toDate(),
-      } as Image;
-    });
+    const images: Image[] = docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          ...data,
+          id: doc.id,
+          createdAt: data.createdAt.toDate(),
+          deletedAt: data.deletedAt?.toDate(),
+        } as Image;
+      })
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
     return images;
   }

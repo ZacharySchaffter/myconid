@@ -1,6 +1,6 @@
 "use server-only";
 
-import { getSessionToken } from "@/lib/session.server";
+import { getSession } from "@/lib/session.server";
 
 interface TokenResponse {
   user_id: string;
@@ -59,7 +59,8 @@ class Auth {
     token?: string
   ): Promise<{ userId: string; isValid: boolean }> {
     if (!token) {
-      token = (await getSessionToken()) || "";
+      const session = await getSession();
+      token = session?.token;
     }
 
     if (!token) {
