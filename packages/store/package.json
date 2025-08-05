@@ -2,7 +2,8 @@
   "name": "@myconid/store",
   "type": "module",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "dev": "tsc"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

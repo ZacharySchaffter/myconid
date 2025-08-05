@@ -55,7 +55,6 @@ app.use(
  */
 
 const store = new Store(FIREBASE_SERVICE_ACCOUNT_BASE64!);
-
 const media = new MediaService(MEDIA_SERVICE_BASE_URL!);
 const analysis = new AnalysisService(ANALYSIS_SERVICE_BASE_URL!);
 
@@ -75,7 +74,16 @@ async function verifySession(req: Request) {
 
 const listImagesSearchSchema = z.object({
   user: z.string().optional(),
-  exclude: z.boolean().optional().default(false),
+  exclude: z
+    .union([z.string(), z.boolean()]) // allow both "true" and true
+    .transform((val) => {
+      if (typeof val === "string") {
+        return val === "true"; // cast string to boolean
+      }
+      return Boolean(val);
+    })
+    .optional()
+    .default(false),
 });
 
 app.get("/", async (req: Request, res: Response) => {
@@ -92,7 +100,7 @@ app.get("/images", async (req: Request, res: Response) => {
 
   const result = listImagesSearchSchema.safeParse(req.query);
   if (!result.success) {
-    console.log("invalid search params");
+    console.log("invalid search params:", JSON.stringify(result.error.issues));
     return res.status(400).json({
       error: "invalid arguments",
       details: result.error.issues.map(
@@ -102,20 +110,21 @@ app.get("/images", async (req: Request, res: Response) => {
   }
   const { user: userId, exclude } = result.data;
 
-  const images = await store.listImages(userId).catch((err: unknown) => {
-    console.error(
-      `error: failed to retrieve images (user id: ${userId}, exclude: ${exclude}):`,
-      err
-    );
-    return res.status(500).json({ error: "error retrieving images" });
-  });
+  console.log(`searching images with params: ${JSON.stringify(result.data)}`);
+
+  const images = await store
+    .listImages({ userId, exclude })
+    .catch((err: unknown) => {
+      console.error(`error: failed to retrieve images:`, err);
+      return res.status(500).json({ error: "error retrieving images" });
+    });
 
   return res.json({ data: images, success: true });
 });
 
 // GET IMAGE
 app.get("/images/:id", async (req: Request, res: Response) => {
-  const { userId, isValid } = await verifySession(req);
+  const { isValid } = await verifySession(req);
 
   if (!isValid) {
     return res.status(401).json({ error: "not authenticated" });
@@ -172,7 +181,7 @@ app.post(
       analysisResults = translateAnalysisToImageAnalysis(results);
     } catch (err) {
       console.error("error getting analysis results:", err);
-      // don't error!
+      // don't error — an empty analysis result means that analysis failed
     }
 
     const imageRecord = {

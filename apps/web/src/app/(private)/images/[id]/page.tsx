@@ -6,6 +6,7 @@ import Auth from "@/services/auth";
 import Myconid from "@/services/myconid";
 import { LucideArrowLeft } from "lucide-react";
 import { Image } from "@myconid/store/types";
+import AnalysisResults from "./AnalysisResults";
 
 type PageParams = {
   id: string;
@@ -37,7 +38,7 @@ const ImageDetailPage = async ({ params }: { params: Promise<PageParams> }) => {
   }
 
   return (
-    <div className="max-w-lg w-full">
+    <div className="max-w-lg w-full flex flex-col gap-y-2">
       <div className="mb-3">
         <Link
           href="/account"
@@ -62,12 +63,7 @@ const ImageDetailPage = async ({ params }: { params: Promise<PageParams> }) => {
         <div className="text-sm my-2">
           Uploaded at: {dayjs(image.createdAt).format("YYYY-MM-DD")}
         </div>
-        <Heading level="h1" tag="h2">
-          <span className="block text-[.55em] font-medium">Genus Name</span>
-          <span>Species Name (todo)</span>
-        </Heading>
-
-        {/* TODO: Fill in data here */}
+        <AnalysisResults analysis={image?.analysis} />
       </div>
     </div>
   );

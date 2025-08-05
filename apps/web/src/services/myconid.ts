@@ -47,8 +47,16 @@ class MyconidCoreService {
   }
 
   // TODO: add exclude option, make userId optional
-  async listImages(userId: string): Promise<Image[]> {
-    return this._fetch<Image[]>(`/images`).then((res) => {
+  async listImages(userId: string, exclude?: boolean): Promise<Image[]> {
+    const params = new URLSearchParams();
+    params.set("user", userId);
+    if (typeof exclude != undefined) {
+      params.set("exclude", String(exclude));
+    }
+
+    return this._fetch<Image[]>(
+      `/images${params.size > 0 ? `?${params.toString()}` : ""}`
+    ).then((res) => {
       return res?.data;
     });
   }

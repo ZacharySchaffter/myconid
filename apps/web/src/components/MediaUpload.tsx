@@ -1,3 +1,5 @@
+"use client";
+
 import clsx from "clsx";
 import React, { useState, useCallback } from "react";
 import { Accept, useDropzone, FileRejection, ErrorCode } from "react-dropzone";
