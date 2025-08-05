@@ -64,6 +64,19 @@ importers:
         specifier: ^5.9.2
         version: 5.9.2
 
+  apps/auth:
+    dependencies:
+      express:
+        specifier: ^5.1.0
+        version: 5.1.0
+      express-async-handler:
+        specifier: ^1.2.0
+        version: 1.2.0
+    devDependencies:
+      nodemon:
+        specifier: ^3.1.10
+        version: 3.1.10
+
   apps/core:
     dependencies:
       '@myconid/store':
@@ -2209,6 +2222,9 @@ packages:
   execa@5.1.1:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}
     engines: {node: '>=10'}
+
+  express-async-handler@1.2.0:
+    resolution: {integrity: sha512-rCSVtPXRmQSW8rmik/AIb2P0op6l7r1fMW538yyvTMltCO4xQEWMmobfrIxN2V1/mVrgxB8Az3reYF6yUZw37w==}
 
   express@5.1.0:
     resolution: {integrity: sha512-DT9ck5YIRU+8GYzzU5kT3eHGA5iL+1Zd0EutOmTE9Dtk+Tvuzd23VBU+ec7HPNSTxXYO55gPV/hq4pSBJDjFpA==}
@@ -6277,6 +6293,8 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
       strip-final-newline: 2.0.0
+
+  express-async-handler@1.2.0: {}
 
   express@5.1.0:
     dependencies:

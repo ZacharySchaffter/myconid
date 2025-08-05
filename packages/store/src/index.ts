@@ -44,7 +44,7 @@ export class Store {
   }
 
   async listImages(options?: {
-    userId?: number;
+    userId?: string;
     exclude?: boolean;
   }): Promise<Image[]> {
     const imagesRef = this.firestore.collection("images");
