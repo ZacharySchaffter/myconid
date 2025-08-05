@@ -3,21 +3,20 @@ import { type ImageAnalysis } from "@myconid/store/types";
 
 export const translateAnalysisToImageAnalysis = (
   results: AnalysisResponse
-): ImageAnalysis => {
+): ImageAnalysis | null => {
   const suggestion = results.classification?.suggestions?.[0];
+  if (!suggestion || suggestion.probability < 0.4) return null;
   return {
-    isMushroom: {
-      confidence: results.is_mushroom.probability,
-      binary: results.is_mushroom.binary,
-    },
+    confidence: suggestion.probability || results.is_mushroom.probability || 0,
     name: suggestion?.name,
-    commonNames: suggestion?.details?.common_names,
-    lookAlikes: suggestion?.details?.look_alike?.map((la) => {
-      return {
-        url: la.url,
-        name: la.name,
-      };
-    }),
+    commonNames: suggestion?.details?.common_names || null,
+    lookAlikes:
+      suggestion?.details?.look_alike?.map((la) => {
+        return {
+          url: la.url,
+          name: la.name,
+        };
+      }) || null,
     description: {
       content: suggestion?.details?.description?.value,
       citation: suggestion?.details?.description?.citation,

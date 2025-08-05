@@ -175,7 +175,7 @@ app.post(
       return res.status(500).json({ error: "error saving image file" });
     }
 
-    let analysisResults: ImageAnalysis | undefined;
+    let analysisResults: ImageAnalysis | null = null;
     try {
       const results = await analysis.analyzeImage(imageFile);
       analysisResults = translateAnalysisToImageAnalysis(results);

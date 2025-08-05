@@ -66,12 +66,17 @@ class Auth {
       return Promise.reject("no session found");
     }
 
-    return this._fetch<{ isValid: boolean; userId: string }>("/validate", {
+    return this._fetch<TokenResponse>("/validate", {
       method: "POST",
       headers: {
         "content-type": "application/json",
       },
       body: JSON.stringify({ token: token }),
+    }).then((data) => {
+      return {
+        isValid: !!data,
+        userId: data.user_id,
+      };
     });
   }
 }
