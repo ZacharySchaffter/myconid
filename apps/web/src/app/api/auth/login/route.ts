@@ -1,23 +1,22 @@
 import { setSessionTokenForResponse } from "@/lib/session.server";
+import auth from "@/services/auth";
 import { NextResponse } from "next/server";
 
-// TODO: integrate with authentication service
-
 export async function POST(req: Request) {
+  // get credentials
   const { username, password } = await req.json();
 
-  if (username === "admin" && password === "password") {
+  try {
+    const session = await auth.login(username, password);
+
     const response = NextResponse.json({
-      user_id: "fake-user-123",
-      username: "admin",
+      userId: session.user_id,
+      username: session?.username,
     });
-
-    const token = "fake-jwt-token";
-
-    setSessionTokenForResponse(response, token);
-
+    setSessionTokenForResponse(response, session.token);
     return response;
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "invalid credentials" }, { status: 401 });
   }
-
-  return NextResponse.json({ error: "invalid credentials" }, { status: 401 });
 }

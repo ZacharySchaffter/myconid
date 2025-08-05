@@ -13,6 +13,7 @@ type AuthContextData = {
   username: string | null;
   logout: () => Promise<void>;
   login: (credentials: UserCredentials) => Promise<void>;
+  register: (credentials: UserCredentials) => Promise<void>;
 };
 
 const defaultData: AuthContextData = {
@@ -20,6 +21,7 @@ const defaultData: AuthContextData = {
   username: null,
   logout: () => Promise.reject("not initialized"),
   login: () => Promise.reject("not initialized"),
+  register: () => Promise.reject("not initialized"),
 };
 
 const AuthContext = React.createContext(defaultData);
@@ -46,6 +48,20 @@ export const AuthContextProvider: React.FC<PropsWithChildren<Props>> = ({
         }).then((res) => {
           if (!res.ok) {
             throw new Error(`login error: ${res.status} - ${res.statusText}`);
+          }
+          setIsAuthed(true);
+          router.push("/account");
+        });
+      },
+      register: async (credentials: UserCredentials) => {
+        return fetch("/api/auth/register", {
+          method: "POST",
+          body: JSON.stringify(credentials),
+        }).then((res) => {
+          if (!res.ok) {
+            throw new Error(
+              `registration error: ${res.status} - ${res.statusText}`
+            );
           }
           setIsAuthed(true);
           router.push("/account");

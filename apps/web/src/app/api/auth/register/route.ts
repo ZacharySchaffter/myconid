@@ -1,12 +1,24 @@
+import { setSessionTokenForResponse } from "@/lib/session.server";
+import auth from "@/services/auth";
 import { NextResponse } from "next/server";
 
-// TODO: integrate with authentication service
-
 export async function POST(req: Request) {
+  // get credentials
   const { username, password } = await req.json();
 
-  console.log(`called registration with ${username}, ${password}`);
-  // TODO: Set session cookie
+  try {
+    const session = await auth.register(username, password);
+    console.log("GOT SESSION: ", session);
+    const response = NextResponse.json({
+      userId: session.user_id,
+      username: session?.username,
+    });
 
-  return NextResponse.json({ error: "invalid credentials" }, { status: 401 });
+    setSessionTokenForResponse(response, session.token);
+    return response;
+  } catch (err) {
+    console.log("REGISTRATION ERROR:");
+    console.error(err);
+    return NextResponse.json({ error: "invalid credentials" }, { status: 401 });
+  }
 }

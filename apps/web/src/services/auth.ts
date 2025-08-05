@@ -10,7 +10,7 @@ interface TokenResponse {
 }
 
 class Auth {
-  baseUrl = process.env.NEXT_PUBLIC_AUTH_SERVICE_BASE_URL;
+  baseUrl = process.env.AUTH_SERVICE_BASE_URL;
   constructor() {
     if (!this.baseUrl) {
       console.error("AUTH_SERVICE_BASE_URL unset and required!");
@@ -27,6 +27,7 @@ class Auth {
       }
 
       if (!res.ok) {
+        console.log(data);
         throw new Error(data || `${res.status} - ${res.statusText}`);
       }
 
@@ -37,6 +38,9 @@ class Auth {
   async login(username: string, password: string): Promise<TokenResponse> {
     return this._fetch("/login", {
       method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
       body: JSON.stringify({ username, password }),
     });
   }
@@ -44,13 +48,16 @@ class Auth {
   async register(username: string, password: string): Promise<TokenResponse> {
     return this._fetch("/register", {
       method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
       body: JSON.stringify({ username, password }),
     });
   }
 
   async verifySession(
     token?: string
-  ): Promise<{ userId: string; isValid: true }> {
+  ): Promise<{ userId: string; isValid: boolean }> {
     if (!token) {
       token = (await getSessionToken()) || "";
     }
@@ -59,8 +66,11 @@ class Auth {
       return Promise.reject("no session found");
     }
 
-    return this._fetch("/validate", {
+    return this._fetch<{ isValid: boolean; userId: string }>("/validate", {
       method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
       body: JSON.stringify({ token: token }),
     });
   }
